@@ -4,11 +4,13 @@ const {User}=require('../db.js')
 require('dotenv').config()
 // user registration
 let userRegistration=async (req,res)=>{
-    let body=req.body.data;
-    let search= await User.find({username:body.username})
+    let body=req.body;
+    // console.log(body)
+    let search= await User.find({email:body.email})
     if(search.length===0){
         let hashed_pass=await bcryptjs.hash(body.password,10);
         body.password=hashed_pass;
+        body.confirmPassword=hashed_pass;
         let ans=await User.create(body)
         res.status(201).send({message:'user created',payload:ans})
     }
@@ -21,9 +23,9 @@ let userRegistration=async (req,res)=>{
 
 let userLogin=async (req,res)=>{
     let body=req.body;
-    let search=await User.find({username:body.username});
+    let search=await User.find({email:body.email});
     if(search.length===0){
-        res.status(201).send({message:'Invalid Username'})
+        res.status(201).send({message:'Invalid Email'})
     }
     else{
         const result=await bcryptjs.compare(body.password,search[0].password);
@@ -32,7 +34,7 @@ let userLogin=async (req,res)=>{
         }
         else{
             const signedToken = jwt.sign(
-                { username: search.username },
+                { email: search.email },
                 process.env.SECRET_KEY,
                 { expiresIn: "1d" }
             );

@@ -8,7 +8,7 @@ mongoose.connect(DB_URL)
 .catch((err)=>console.log(err))
 
 const userSchema=mongoose.Schema({
-    fullname:{
+    fullName:{
         type:String,
         required:true
     },
@@ -24,7 +24,7 @@ const userSchema=mongoose.Schema({
         type:String,
         required:true
     },
-    confirmpassword:{
+    confirmPassword:{
         type:String,
         required:true
     },
@@ -83,3 +83,5 @@ const crimeSchema=mongoose.Schema({
 const User=mongoose.model('user',userSchema)
 const Police=mongoose.model('police',policeSchema)
 const Crime=mongoose.model('crime',crimeSchema)
+
+module.exports={User,Police,Crime}

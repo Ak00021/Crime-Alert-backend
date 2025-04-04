@@ -17,6 +17,7 @@ app.use('/crime-api',crimeApi);
 
 // error handling middleware
 app.use((err, req, res, next) => {
+    console.error(err.message); // Log the error stack for debugging
     res.status(400).send({ message: "error occured", payload: err.message })
 });
 
