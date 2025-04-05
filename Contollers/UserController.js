@@ -1,7 +1,9 @@
 const bcryptjs=require('bcrypt')
 const jwt=require('jsonwebtoken')
 const {User}=require('../db.js')
+const {Crime}=require('../db.js')
 require('dotenv').config()
+const sendEmail=require('../Mailer.js')
 // user registration
 let userRegistration=async (req,res)=>{
     let body=req.body;
@@ -43,6 +45,51 @@ let userLogin=async (req,res)=>{
     }
 }
 
+// controller for sending mail to user when he arrives logs in  (when user arrived on landing page , mail needs to be send only once)
+
+let sendMails = async (req, res) => {
+    let data = req.body.email;
+
+    try {
+        // Fetching all crime data from the backend
+        let crimeRes = await Crime.find({});
+        
+        // Fetching user data by email
+        let userData = await User.findOne({ email: data }); // Assuming `email` is unique
+
+        if (!userData) {
+            return res.status(404).send({ message: "User not found" });
+        }
+
+        if (crimeRes.length > 0) {
+            crimeRes.forEach(async (crime) => {
+                // Check if the crimeId exists in the user's emailList
+                const crimeIdExists = userData.emailList.some(
+                    (id) => id.toString() === crime._id.toString()
+                );
+
+                if (!crimeIdExists) {
+                    // Send email logic (implement your sendEmail function)
+                    await sendEmail(userData.email, crime.crimes[0]);
+
+                    // Add the crimeId to emailList
+                    userData.emailList.push(crime._id);
+                }
+            });
+
+            // Save the updated userData after modifying emailList
+            await userData.save();
+        }
+
+        res.status(200).send({ message: "Emails processed successfully" });
+    } catch (error) {
+        console.error("Error in sendMails:", error);
+        res.status(500).send({ message: "Internal server error" });
+    }
+};
 
 
-module.exports={userRegistration,userLogin}
+
+
+
+module.exports={userRegistration,userLogin,sendMails}

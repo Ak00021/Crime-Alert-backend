@@ -28,7 +28,8 @@ const userSchema=mongoose.Schema({
         type:String,
         required:true
     },
-    agreeTerms:{type:Boolean,required:true}
+    agreeTerms:{type:Boolean,required:true},
+    emailList:[{type: mongoose.Schema.Types.ObjectId }]
 
 })
 

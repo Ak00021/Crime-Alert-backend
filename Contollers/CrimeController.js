@@ -35,8 +35,14 @@ const registerCrime = async (req, res) => {
     }
   };
   
-async function getCrimeData(req,res){
-
+let getCrimeData=async(req,res)=>{
+  let ans=await Crime.find({})
+  if(ans.length>0){
+    res.status(200).json({message:"Crime data fetched successfully",data:ans})
+  }
+  else{
+    res.status(404).json({message:"No crime data found"})
+  }
 }
 
 module.exports={registerCrime,getCrimeData}
