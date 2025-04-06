@@ -2,6 +2,7 @@ const bcryptjs=require('bcrypt')
 const jwt=require('jsonwebtoken')
 const {User}=require('../db.js')
 const {Crime}=require('../db.js')
+
 require('dotenv').config()
 const sendEmail=require('../Mailer.js')
 // user registration
@@ -46,10 +47,13 @@ let userLogin=async (req,res)=>{
 }
 
 // controller for sending mail to user when he arrives logs in  (when user arrived on landing page , mail needs to be send only once)
-
+const haversineDistance=require('../Haversine.js')
+const { distance } = require('motion')
 let sendMails = async (req, res) => {
     let data = req.body.email;
-
+    let latitude=req.body.latitude;
+    let longitude=req.body.longitude;
+    // console.log('ans is',latitude,longitude);
     try {
         // Fetching all crime data from the backend
         let crimeRes = await Crime.find({});
@@ -62,8 +66,14 @@ let sendMails = async (req, res) => {
         }
 
         if (crimeRes.length > 0) {
-            crimeRes.forEach(async (crime) => {
+            for (const crime of crimeRes) {
+                const lat=crime.crimes[0].latitude;
+                const long=crime.crimes[0].longitude;
+                // console.log(lat,long,crime.crimes[0].incidentType);
                 // Check if the crimeId exists in the user's emailList
+                const distance=haversineDistance(latitude,longitude,lat,long);
+                // console.log(distance)
+                if(distance<5){
                 const crimeIdExists = userData.emailList.some(
                     (id) => id.toString() === crime._id.toString()
                 );
@@ -75,10 +85,12 @@ let sendMails = async (req, res) => {
                     // Add the crimeId to emailList
                     userData.emailList.push(crime._id);
                 }
-            });
+            
 
             // Save the updated userData after modifying emailList
             await userData.save();
+                }
+        }
         }
 
         res.status(200).send({ message: "Emails processed successfully" });
