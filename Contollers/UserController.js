@@ -73,7 +73,7 @@ let sendMails = async (req, res) => {
                 // Check if the crimeId exists in the user's emailList
                 const distance=haversineDistance(latitude,longitude,lat,long);
                 // console.log(distance)
-                if(distance<5){
+                if(distance<1){
                 const crimeIdExists = userData.emailList.some(
                     (id) => id.toString() === crime._id.toString()
                 );
